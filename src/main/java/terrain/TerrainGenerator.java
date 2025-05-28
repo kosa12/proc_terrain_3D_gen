@@ -43,6 +43,10 @@ public class TerrainGenerator {
             imGuiGlfw.newFrame();
             ImGui.newFrame();
 
+            // Set position and size of the ImGui window
+            ImGui.setNextWindowPos(10, 10); // Position in the top-left corner
+            ImGui.setNextWindowSize(250, 220); // Set a larger size
+
             float[] scale = new float[]{config.scale};
             int[] octaves = new int[]{config.octaves};
             float[] persistence = new float[]{config.persistence};
