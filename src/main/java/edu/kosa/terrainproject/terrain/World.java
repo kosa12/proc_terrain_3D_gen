@@ -1,4 +1,6 @@
-package terrain;
+package edu.kosa.terrainproject.terrain;
+
+import edu.kosa.terrainproject.noise.PerlinNoise;
 
 import java.util.HashMap;
 import java.util.Map;

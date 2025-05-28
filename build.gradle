@@ -39,5 +39,5 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.register('run', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'terrain.TerrainGenerator'
+    mainClass = 'edu.kosa.terrainproject.app.Main'
 }

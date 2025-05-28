@@ -1,4 +1,4 @@
-package terrain;
+package edu.kosa.terrainproject.noise;
 
 import java.util.Random;
 

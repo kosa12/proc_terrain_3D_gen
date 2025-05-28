@@ -1,5 +1,10 @@
-package terrain;
+package edu.kosa.terrainproject.app;
 
+import edu.kosa.terrainproject.graphics.*;
+import edu.kosa.terrainproject.input.InputHandler;
+import edu.kosa.terrainproject.terrain.Chunk;
+import edu.kosa.terrainproject.terrain.TerrainConfig;
+import edu.kosa.terrainproject.terrain.World;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiConfigFlags;
@@ -11,7 +16,7 @@ import org.lwjgl.opengl.GL20;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TerrainGenerator {
+public class Main {
     private static final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private static final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 

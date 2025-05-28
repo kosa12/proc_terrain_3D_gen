@@ -1,5 +1,6 @@
-package terrain;
+package edu.kosa.terrainproject.graphics;
 
+import edu.kosa.terrainproject.terrain.Chunk;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;

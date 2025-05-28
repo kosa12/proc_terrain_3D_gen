@@ -1,4 +1,7 @@
-package terrain;
+package edu.kosa.terrainproject.terrain;
+
+import edu.kosa.terrainproject.graphics.Mesh;
+import edu.kosa.terrainproject.noise.PerlinNoise;
 
 import java.util.ArrayList;
 import java.util.List;

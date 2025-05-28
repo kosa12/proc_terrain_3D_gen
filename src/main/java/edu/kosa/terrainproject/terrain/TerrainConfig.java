@@ -1,4 +1,4 @@
-package terrain;
+package edu.kosa.terrainproject.terrain;
 
 public class TerrainConfig {
     public float scale = 0.03f; // Perlin noise scale

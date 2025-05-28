@@ -1,5 +1,6 @@
-package terrain;
+package edu.kosa.terrainproject.input;
 
+import edu.kosa.terrainproject.graphics.Camera;
 import org.lwjgl.glfw.GLFW;
 
 public class InputHandler {

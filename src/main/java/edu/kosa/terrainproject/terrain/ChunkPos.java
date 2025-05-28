@@ -1,4 +1,4 @@
-package terrain;
+package edu.kosa.terrainproject.terrain;
 
 public class ChunkPos {
     private final int x;
