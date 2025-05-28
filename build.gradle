@@ -10,26 +10,22 @@ repositories {
 }
 
 dependencies {
-    // LWJGL version
-    def lwjglVersion = '3.3.3'
-
-    // LWJGL core and modules
-    implementation "org.lwjgl:lwjgl:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion" // Added for STBImage
-
-    // JOML for 3D math
+    implementation 'org.lwjgl:lwjgl:3.3.1'
+    implementation 'org.lwjgl:lwjgl-glfw:3.3.1'
+    implementation 'org.lwjgl:lwjgl-opengl:3.3.1'
+    implementation 'org.lwjgl:lwjgl-stb:3.3.1'
     implementation 'org.joml:joml:1.10.5'
 
-    // Platform-specific natives
-    ['natives-linux', 'natives-macos', 'natives-windows'].each { platform ->
-        runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$platform"
-        runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$platform"
-        runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$platform"
-        runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$platform" // Added for STBImage
-    }
+    runtimeOnly "org.lwjgl:lwjgl:3.3.1:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:3.3.1:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:3.3.1:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-stb:3.3.1:natives-linux"
+
+    implementation 'io.github.spair:imgui-java-binding:1.86.10'
+    implementation 'io.github.spair:imgui-java-lwjgl3:1.86.10'
+    implementation 'io.github.spair:imgui-java-natives-linux:1.86.10'
 }
+
 
 java {
     toolchain {

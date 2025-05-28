@@ -4,7 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Camera {
-    private Vector3f position;
+    private final Vector3f position;
     private final float pitch = -60f; // Fixed 45-degree downward angle
     private float yaw; // Rotation around Y-axis
     private final Matrix4f projectionMatrix;
