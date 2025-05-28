@@ -42,17 +42,17 @@ public class PerlinNoise {
     private double[] getGradient(int hash) {
         // Use hash to select one of 8 unit vectors
         int h = hash & 7;
-        switch (h) {
-            case 0: return new double[]{1, 0};
-            case 1: return new double[]{-1, 0};
-            case 2: return new double[]{0, 1};
-            case 3: return new double[]{0, -1};
-            case 4: return new double[]{1, 1};
-            case 5: return new double[]{-1, 1};
-            case 6: return new double[]{1, -1};
-            case 7: return new double[]{-1, -1};
-            default: return new double[]{0, 0};
-        }
+        return switch (h) {
+            case 0 -> new double[]{1, 0};
+            case 1 -> new double[]{-1, 0};
+            case 2 -> new double[]{0, 1};
+            case 3 -> new double[]{0, -1};
+            case 4 -> new double[]{1, 1};
+            case 5 -> new double[]{-1, 1};
+            case 6 -> new double[]{1, -1};
+            case 7 -> new double[]{-1, -1};
+            default -> new double[]{0, 0};
+        };
     }
 
     // Compute dot product of gradient and distance vector
