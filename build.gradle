@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // LWJGL version
+    def lwjglVersion = '3.3.3'
+
+    // LWJGL core and modules
+    implementation "org.lwjgl:lwjgl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+
+    // Platform-specific natives
+    ['natives-linux', 'natives-macos', 'natives-windows'].each { platform ->
+        runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$platform"
+        runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$platform"
+        runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$platform"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.register('run', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.terrain.TerrainGenerator'
+}
