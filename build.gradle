@@ -32,11 +32,11 @@ java {
     }
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
 tasks.register('run', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.example.terrain.TerrainGenerator'
+    mainClass = 'terrain.TerrainGenerator'
 }

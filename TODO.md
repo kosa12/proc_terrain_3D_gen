@@ -4,13 +4,13 @@
 Create a Java application that generates 3D procedural terrain using a custom seedable noise function, displays it within a circular visible area, and allows mouse-based navigation to explore the terrain in a 3D environment (not first-person).
 
 ## 1. Project Setup
-- [ ] Choose and set up a 3D graphics library.
+- [x] Choose and set up a 3D graphics library.
     - Use LWJGL for OpenGL rendering, window management, and input handling.
     - Configure LWJGL dependencies (e.g., via Maven or Gradle).
-- [ ] Create a basic Java project structure.
+- [x] Create a basic Java project structure.
     - Set up a main class to initialize the application.
     - Configure build tools for dependency management.
-- [ ] Initialize a window for rendering.
+- [x] Initialize a window for rendering.
     - Use GLFW (via LWJGL) to create a resizable window.
     - Set up an OpenGL context for 3D rendering.
 
