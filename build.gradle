@@ -17,12 +17,17 @@ dependencies {
     implementation "org.lwjgl:lwjgl:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion" // Added for STBImage
+
+    // JOML for 3D math
+    implementation 'org.joml:joml:1.10.5'
 
     // Platform-specific natives
     ['natives-linux', 'natives-macos', 'natives-windows'].each { platform ->
         runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$platform"
         runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$platform"
         runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$platform"
+        runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$platform" // Added for STBImage
     }
 }
 

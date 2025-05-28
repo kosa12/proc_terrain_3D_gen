@@ -9,7 +9,7 @@ public class World {
 
     public World(long seed) {
         this.chunks = new HashMap<>();
-        this.noise = new PerlinNoise(seed, 0.05); // Scale = 0.05
+        this.noise = new PerlinNoise(seed, 0.05);
     }
 
     public Chunk getChunk(int chunkX, int chunkZ) {
@@ -18,12 +18,10 @@ public class World {
     }
 
     public byte getBlock(int x, int y, int z) {
-        int chunkX = x / Chunk.SIZE;
-        int chunkZ = z / Chunk.SIZE;
-        int localX = x % Chunk.SIZE;
-        int localZ = z % Chunk.SIZE;
-        if (localX < 0) localX += Chunk.SIZE;
-        if (localZ < 0) localZ += Chunk.SIZE;
+        int chunkX = Math.floorDiv(x, Chunk.SIZE);
+        int chunkZ = Math.floorDiv(z, Chunk.SIZE);
+        int localX = Math.floorMod(x, Chunk.SIZE);
+        int localZ = Math.floorMod(z, Chunk.SIZE);
         Chunk chunk = getChunk(chunkX, chunkZ);
         return chunk.getBlock(localX, y, localZ);
     }

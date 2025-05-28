@@ -1,54 +1,69 @@
 package terrain;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TerrainGenerator {
     public static void main(String[] args) {
-        // Test terrain generation
-        World world = new World(67890L);
-        System.out.println("Testing Terrain Generation (16x16x1 slice at y=8):");
-        for (int z = 0; z < 16; z++) {
-            for (int x = 0; x < 16; x++) {
-                byte block = world.getBlock(x, 8, z);
-                System.out.print(block == 0 ? "." : block == 1 ? "G" : "S");
-                System.out.print(" ");
-            }
-            System.out.println();
-        }
+        // Initialize window and OpenGL
+        WindowManager windowManager = new WindowManager(1200, 800, "CircleScape");
 
-        // Initialize GLFW
-        if (!GLFW.glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
+        // Initialize components
+        World world = new World(12345L);
+        Camera camera = new Camera(800f / 600f);
+        TextureLoader textureLoader = new TextureLoader();
+        int textureID = textureLoader.loadTexture("src/main/resources/textures/atlas.png");
+        ShaderProgram shaderProgram = new ShaderProgram();
+        Renderer renderer = new Renderer(shaderProgram, textureID);
+        InputHandler inputHandler = new InputHandler(windowManager.getWindow(), camera);
 
-        // Create a window
-        long window = GLFW.glfwCreateWindow(800, 600, "CircleScape", 0, 0);
-        if (window == 0) {
-            GLFW.glfwTerminate();
-            throw new IllegalStateException("Failed to create GLFW window");
-        }
-
-        // Make the OpenGL context current
-        GLFW.glfwMakeContextCurrent(window);
-        GL.createCapabilities();
-
-        // Enable v-sync
-        GLFW.glfwSwapInterval(1);
+        // Load initial chunks
+        List<Chunk> loadedChunks = new ArrayList<>();
+        updateChunks(world, camera, loadedChunks);
 
         // Main loop
-        while (!GLFW.glfwWindowShouldClose(window)) {
-            // Clear the screen
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        double lastTime = windowManager.getTime();
+        while (!windowManager.shouldClose()) {
+            double currentTime = windowManager.getTime();
+            float deltaTime = (float) (currentTime - lastTime);
+            lastTime = currentTime;
 
-            // Swap buffers and poll events
-            GLFW.glfwSwapBuffers(window);
-            GLFW.glfwPollEvents();
+            inputHandler.processInput(deltaTime);
+            updateChunks(world, camera, loadedChunks);
+
+            renderer.render(camera, loadedChunks, inputHandler.getRadius());
+
+            windowManager.update();
         }
 
-        // Clean up
-        GLFW.glfwDestroyWindow(window);
-        GLFW.glfwTerminate();
+        // Cleanup
+        for (Chunk chunk : loadedChunks) {
+            if (chunk.getMesh() != null) {
+                chunk.getMesh().cleanup();
+            }
+        }
+        textureLoader.cleanup();
+        shaderProgram.cleanup();
+        windowManager.cleanup();
+    }
+
+    private static void updateChunks(World world, Camera camera, List<Chunk> loadedChunks) {
+        loadedChunks.clear();
+        int renderDistance = 6; // Increased render distance
+        int chunkX = (int) Math.floor(camera.getPosition().x / Chunk.SIZE);
+        int chunkZ = (int) Math.floor(camera.getPosition().z / Chunk.SIZE);
+
+        for (int x = chunkX - renderDistance; x <= chunkX + renderDistance; x++) {
+            for (int z = chunkZ - renderDistance; z <= chunkZ + renderDistance; z++) {
+                Chunk chunk = world.getChunk(x, z);
+                if (chunk.getMesh() == null) {
+                    chunk.generateMesh(world);
+                }
+                if (chunk.getMesh() == null) {
+                    System.err.println("Warning: Null mesh for chunk at (" + x + ", " + z + ")");
+                }
+                loadedChunks.add(chunk);
+            }
+        }
     }
 }

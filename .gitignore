@@ -6,3 +6,4 @@ native/ lib/native/
 
 bin/ out/ target/
 *.cache *.lock *.pid *.gz *.zip
+prompt.txt

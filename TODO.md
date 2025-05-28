@@ -45,40 +45,32 @@ Create a Java application that generates 3D procedural terrain using a custom se
     - Use a 3D array or hashmap to store block types (e.g., grass, stone) per chunk.
 
 ## 4. Rendering the Terrain
-- [ ] Set up a 3D camera.
-    - Implement a camera class for position, rotation, and perspective projection.
-    - Enable mouse input for camera rotation (yaw and pitch).
-    - Add optional keyboard input (e.g., WASD) for camera movement.
-- [ ] Render terrain chunks.
+- [x] Set up a 3D camera.
+    - Implement a camera class for position, and perspective projection, a fixed 45 degree angle
+    - Enable mouse input for camera rotation (zoom).
+    - Add optional keyboard input (WASD) for camera movement.
+- [x] Render terrain chunks.
     - Convert chunk data into 3D meshes (voxel-based cubes).
     - Optimize by rendering only visible block faces (face culling).
-- [ ] Implement a circular visibility area.
+- [x] Implement a circular visibility area.
     - Use a fragment shader to apply a circular mask centered on the camera’s view.
     - Adjust the radius dynamically based on camera distance or user input.
-- [ ] Add basic lighting and texturing.
-    - Implement directional lighting (e.g., sunlight) for 3D depth.
+- [x] Add basic lighting and texturing.
+    - Implement directional lighting for 3D depth.
     - Apply textures to blocks using texture atlasing.
 
-## 5. Input Handling
-- [ ] Implement mouse-based navigation.
-    - Capture mouse movement to adjust camera yaw and pitch.
-    - Allow mouse scroll to zoom (adjust camera distance or field of view).
-- [ ] Add optional keyboard controls.
-    - Implement WASD for horizontal camera movement.
-    - Add keys for vertical movement (e.g., spacebar up, shift down).
-
 ## 6. Optimization
-- [ ] Optimize terrain rendering.
+- [x] Optimize terrain rendering.
     - Use frustum culling to render only visible chunks.
     - Implement level-of-detail (LOD) for distant chunks.
 - [ ] Optimize noise calculations.
     - Cache permutation tables and precompute gradients where possible.
     - Use background threads for noise generation to avoid lag.
-- [ ] Manage memory.
+- [x] Manage memory.
     - Load/unload chunks dynamically based on camera position.
 
 ## 7. Seed System
-- [ ] Integrate seed with noise.
+- [x] Integrate seed with noise.
     - Use a user-provided seed (e.g., integer or string hash) to initialize the permutation table.
     - Ensure identical seeds produce identical terrain.
 - [ ] Allow seed input.
