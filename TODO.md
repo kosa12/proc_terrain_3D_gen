@@ -73,18 +73,18 @@ Create a Java application that generates 3D procedural terrain using a custom se
 - [x] Integrate seed with noise.
     - Use a user-provided seed (e.g., integer or string hash) to initialize the permutation table.
     - Ensure identical seeds produce identical terrain.
-- [ ] Allow seed input.
-    - Add a simple UI (e.g., ImGui text field) for seed input.
+- [x] Allow seed input.
+    - Add a simple UI (ImGui text field) for seed input.
     - Default to a random seed if none provided.
 
 ## 8. Testing and Debugging
-- [ ] Test noise and terrain.
+- [x] Test noise and terrain.
     - Verify noise smoothness and seed consistency across multiple runs.
     - Ensure chunk transitions and biome variations are seamless.
-- [ ] Test rendering.
+- [x] Test rendering.
     - Confirm circular visibility area follows camera and renders correctly.
     - Check performance with large terrains.
-- [ ] Test navigation.
+- [x] Test navigation.
     - Ensure mouse controls are smooth and intuitive.
     - Debug camera issues (e.g., jitter, clipping).
 
@@ -92,10 +92,10 @@ Create a Java application that generates 3D procedural terrain using a custom se
 - [ ] Enhance terrain details.
     - Add features like trees or rivers using additional noise layers.
     - Vary block types based on height and biome.
-- [ ] Improve visuals.
+- [x] Improve visuals.
     - Add fog for distant terrain.
     - Implement basic shadows or ambient occlusion.
-- [ ] Add UI elements.
+- [x] Add UI elements.
     - Display current seed and camera coordinates.
     - Add toggle for visibility mask (debugging).
 
