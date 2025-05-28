@@ -6,12 +6,14 @@ import org.lwjgl.opengl.GL11;
 
 public class TerrainGenerator {
     public static void main(String[] args) {
-        PerlinNoise noise = new PerlinNoise(67, 0.05); // Seed = 12345, scale = 0.05
-        System.out.println("Testing Perlin Noise (10x10 grid):");
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++) {
-                double value = noise.fbm(x * 0.1, y * 0.1, 4, 0.5, 2.0);
-                System.out.printf("%.3f ", value);
+        // Test terrain generation
+        World world = new World(67890L);
+        System.out.println("Testing Terrain Generation (16x16x1 slice at y=8):");
+        for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 16; x++) {
+                byte block = world.getBlock(x, 8, z);
+                System.out.print(block == 0 ? "." : block == 1 ? "G" : "S");
+                System.out.print(" ");
             }
             System.out.println();
         }

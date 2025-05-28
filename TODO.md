@@ -15,33 +15,33 @@ Create a Java application that generates 3D procedural terrain using a custom se
     - Set up an OpenGL context for 3D rendering.
 
 ## 2. Custom Noise Generation
-- [ ] Design a custom Perlin-like noise function.
+- [x] Design a custom Perlin-like noise function.
     - Research Perlin or Simplex noise principles (gradient-based noise for smooth transitions).
     - Plan for 2D noise for heightmaps, with potential extension to 3D for volumetric features.
-- [ ] Implement a seedable permutation system.
+- [x] Implement a seedable permutation system.
     - Create a permutation table (e.g., 0–255 array) initialized with a user-provided seed.
     - Shuffle the table deterministically using the seed for reproducible results.
     - Double the table for wraparound to handle out-of-bounds indices.
-- [ ] Develop core noise logic.
+- [x] Develop core noise logic.
     - Assign random gradient vectors at grid points using the permutation table.
     - Implement fade (smoothstep), linear interpolation, and gradient dot products for smooth noise.
     - Compute noise values for any (x, y) coordinate, scaled by a user-defined factor.
-- [ ] Add layered noise (Fractal Brownian Motion).
+- [x] Add layered noise (Fractal Brownian Motion).
     - Combine multiple noise layers (octaves) with varying frequency and amplitude.
     - Add parameters for scale, octaves, persistence, and lacunarity to control terrain detail.
     - Normalize output to a consistent range (e.g., 0 to 1) for heightmap use.
-- [ ] Test noise implementation.
+- [x] Test noise implementation.
     - Verify smoothness and randomness by outputting noise values for a small grid.
     - Check that different seeds produce varied but reproducible patterns.
 
 ## 3. Terrain Generation
-- [ ] Design a chunk-based terrain system.
+- [x] Design a chunk-based terrain system.
     - Divide the world into chunks (e.g., 16x16x16 blocks) for efficient memory and rendering.
     - Use the custom noise function to generate heightmaps for each chunk.
-- [ ] Define terrain features.
+- [x] Define terrain features.
     - Create biomes (e.g., plains, mountains) based on noise values (height, optional moisture layer).
     - Add variation (e.g., hills, cliffs) using layered noise.
-- [ ] Store terrain data.
+- [x] Store terrain data.
     - Use a 3D array or hashmap to store block types (e.g., grass, stone) per chunk.
 
 ## 4. Rendering the Terrain
