@@ -1,4 +1,4 @@
-package com.example.terrain;
+package terrain;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
