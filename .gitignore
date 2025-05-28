@@ -1,0 +1,8 @@
+build/ .gradle/ gradle/ gradlew gradlew.bat gradle-wrapper.jar gradle-wrapper.properties
+*.class *.jar *.war *.ear
+.idea/ *.iml *.ipr *.iws .vscode/ *.project *.settings/ .classpath .factorypath
+native/ lib/native/
+*.log *.tmp *.bak *.swp *~
+
+bin/ out/ target/
+*.cache *.lock *.pid *.gz *.zip
