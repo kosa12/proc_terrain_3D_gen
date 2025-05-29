@@ -23,6 +23,7 @@ public class Chunk {
     }
 
     private void generateTerrain() {
+        int sandCount = 0;
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 int worldX = pos.getX() * SIZE + x;
@@ -45,8 +46,12 @@ public class Chunk {
                 int height = (int) Math.floor(noiseValue * config.heightScale + config.baseHeight);
                 height = Math.max(0, Math.min(SIZE - 1, height));
 
+                boolean isSandBiome = height <= 6;
                 for (int y = 0; y < SIZE; y++) {
-                    if (y < height) {
+                    if (isSandBiome && y <= config.sandHeightThreshold) {
+                        blocks[x][y][z] = 3; // Sand
+                        sandCount++;
+                    } else if (y < height) {
                         blocks[x][y][z] = 2; // Stone
                     } else if (y == height) {
                         blocks[x][y][z] = 1; // Grass
@@ -129,8 +134,17 @@ public class Chunk {
 
     private void addFace(List<Float> vertices, List<Float> texCoords, List<Float> normals,
                          List<Integer> indices, int index, int x, int y, int z, byte type, int face) {
-        float uMin = (type == 1 && face == 2) ? 0f : 0.5f;
-        float uMax = (type == 1 && face == 2) ? 0.5f : 1f;
+        float uMin, uMax;
+        if (type == 1 && face == 2) { // Grass top
+            uMin = 0.0f;
+            uMax = 0.333f;
+        } else if (type == 3) { // Sand
+            uMin = 0.667f;
+            uMax = 1.0f;
+        } else { // Stone
+            uMin = 0.333f;
+            uMax = 0.667f;
+        }
 
         switch (face) {
             case 0:
