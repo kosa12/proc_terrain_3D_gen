@@ -95,6 +95,73 @@ public class PerlinNoise {
             frequency *= lacunarity;
         }
 
-        return (total / maxValue + 1) / 2;
+        double value = (total / maxValue + 1) / 2;
+        return value;
+    }
+
+    public double ridgedFbm(double x, double y, int octaves, double persistence, double lacunarity) {
+        double total = 0;
+        double amplitude = 1;
+        double frequency = 1;
+        double maxValue = 0;
+        double weight = 1;
+
+        for (int i = 0; i < octaves; i++) {
+            double noiseVal = Math.abs(noise(x * frequency, y * frequency));
+            noiseVal = 1 - noiseVal; // Invert for ridges
+            noiseVal *= weight;
+            weight = Math.min(noiseVal * 2, 1); // Update weight
+            total += noiseVal * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
+        }
+
+        double value = (total / maxValue);
+        return value;
+    }
+
+    public double billowyFbm(double x, double y, int octaves, double persistence, double lacunarity) {
+        double total = 0;
+        double amplitude = 1;
+        double frequency = 1;
+        double maxValue = 0;
+
+        for (int i = 0; i < octaves; i++) {
+            double noiseVal = Math.abs(noise(x * frequency, y * frequency));
+            total += noiseVal * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
+        }
+
+        double value = (total / maxValue);
+        return value;
+    }
+
+    public double hybridFbm(double x, double y, int octaves, double persistence, double lacunarity) {
+        double total = 0;
+        double amplitude = 1;
+        double frequency = 1;
+        double maxValue = 0;
+        double weight = 1;
+
+        total = noise(x * frequency, y * frequency) * amplitude;
+        maxValue = amplitude;
+        amplitude *= persistence;
+        frequency *= lacunarity;
+
+        for (int i = 1; i < octaves; i++) {
+            double noiseVal = noise(x * frequency, y * frequency);
+            noiseVal *= weight;
+            weight = Math.min(noiseVal * 2, 1);
+            total += noiseVal * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
+        }
+
+        double value = (total / maxValue + 1) / 2;
+        return value;
     }
 }

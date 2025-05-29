@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class World {
-    private final Map<ChunkPos, Chunk> chunks;
+    private Map<ChunkPos, Chunk> chunks;
     private PerlinNoise noise;
     private TerrainConfig config;
 

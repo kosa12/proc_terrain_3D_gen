@@ -54,7 +54,6 @@ public class InputHandler {
             GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR,
                     cursorVisible ? GLFW.GLFW_CURSOR_NORMAL : GLFW.GLFW_CURSOR_DISABLED);
             firstMouse = true; // Reset mouse position
-            System.out.println("Cursor " + (cursorVisible ? "visible" : "hidden"));
         }
 
         if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == GLFW.GLFW_PRESS) {

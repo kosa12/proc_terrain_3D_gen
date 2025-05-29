@@ -5,11 +5,13 @@ import edu.kosa.terrainproject.input.InputHandler;
 import edu.kosa.terrainproject.terrain.Chunk;
 import edu.kosa.terrainproject.terrain.TerrainConfig;
 import edu.kosa.terrainproject.terrain.World;
+
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.lwjgl.opengl.GL20;
 
@@ -39,6 +41,8 @@ public class Main {
 
         double lastTime = windowManager.getTime();
         ImString seedInput = new ImString(String.valueOf(config.seed), 64);
+        String[] noiseTypes = {"Standard", "Ridged", "Billowy", "Hybrid"};
+        ImInt currentNoiseType = new ImInt(0); // Selected noise type index
 
         while (!windowManager.shouldClose()) {
             double currentTime = windowManager.getTime();
@@ -48,10 +52,6 @@ public class Main {
             imGuiGlfw.newFrame();
             ImGui.newFrame();
 
-            // Set position and size of the ImGui window
-            ImGui.setNextWindowPos(10, 10); // Position in the top-left corner
-            ImGui.setNextWindowSize(250, 220); // Set a larger size
-
             float[] scale = new float[]{config.scale};
             int[] octaves = new int[]{config.octaves};
             float[] persistence = new float[]{config.persistence};
@@ -60,6 +60,12 @@ public class Main {
             float[] baseHeight = new float[]{config.baseHeight};
 
             ImGui.begin("Terrain Settings");
+            ImGui.setWindowSize(300, 290);
+            ImGui.setWindowPos(10, 10);
+            ImGui.text("Press Enter to toggle cursor for GUI interaction");
+            if (ImGui.combo("Noise Type", currentNoiseType, noiseTypes)) {
+                config.noiseType = noiseTypes[currentNoiseType.get()];
+            }
             if (ImGui.sliderFloat("Scale", scale, 0.01f, 0.2f)) {
                 config.scale = scale[0];
             }

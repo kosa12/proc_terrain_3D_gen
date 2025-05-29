@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Chunk {
     public static final int SIZE = 16;
-    private final byte[][][] blocks; // 3D array: x, y, z (0=air, 1=grass, 2=stone)
+    private final byte[][][] blocks;
     private final ChunkPos pos;
     private final PerlinNoise noise;
     private final TerrainConfig config;
@@ -27,7 +27,21 @@ public class Chunk {
             for (int z = 0; z < SIZE; z++) {
                 int worldX = pos.getX() * SIZE + x;
                 int worldZ = pos.getZ() * SIZE + z;
-                double noiseValue = noise.fbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                double noiseValue;
+                switch (config.noiseType) {
+                    case "Ridged":
+                        noiseValue = noise.ridgedFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                        break;
+                    case "Billowy":
+                        noiseValue = noise.billowyFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                        break;
+                    case "Hybrid":
+                        noiseValue = noise.hybridFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                        break;
+                    default:
+                        noiseValue = noise.fbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                        break;
+                }
                 int height = (int) Math.floor(noiseValue * config.heightScale + config.baseHeight);
                 height = Math.max(0, Math.min(SIZE - 1, height));
 
