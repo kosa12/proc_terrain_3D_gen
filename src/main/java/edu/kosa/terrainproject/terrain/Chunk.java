@@ -23,6 +23,11 @@ public class Chunk {
     }
 
     private void generateTerrain() {
+        int waterCount = 0; // Debug: count water blocks
+        // First pass: compute terrain heights and find average water height
+        int[][] terrainHeights = new int[SIZE][SIZE];
+        double totalWaterHeight = 0;
+        int waterPoints = 0;
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 int worldX = pos.getX() * SIZE + x;
@@ -38,14 +43,44 @@ public class Chunk {
                 };
                 int height = (int) Math.floor(noiseValue * config.heightScale + config.baseHeight);
                 height = Math.max(0, Math.min(SIZE - 1, height));
+                terrainHeights[x][z] = height;
 
-                boolean isSandBiome = height <= 6;
+                double waterNoiseValue = noise.waterFbm(worldX, worldZ);
+                if (waterNoiseValue > 0.7) {
+                    totalWaterHeight += height;
+                    waterPoints++;
+                }
+            }
+        }
+
+        // Calculate water surface height (average of terrain heights in water regions)
+        int waterSurfaceHeight = waterPoints > 0 ? (int) Math.round(totalWaterHeight / waterPoints) : 6; // Fallback to sand threshold
+        waterSurfaceHeight = Math.max(1, Math.min(SIZE - 1, waterSurfaceHeight)); // Ensure valid height
+
+        // Second pass: place blocks
+        for (int x = 0; x < SIZE; x++) {
+            for (int z = 0; z < SIZE; z++) {
+                int worldX = pos.getX() * SIZE + x;
+                int worldZ = pos.getZ() * SIZE + z;
+                int height = terrainHeights[x][z];
+
+                double waterNoiseValue = noise.waterFbm(worldX, worldZ);
+                boolean isWater = waterNoiseValue > 0.7;
+                int waterDepth = isWater ? 3 : 0; // Fixed depth of 3 blocks for lakes
+                int lakeBedHeight = isWater ? waterSurfaceHeight - waterDepth : -1;
+
+                boolean isSandBiome = height <= 6 && !isWater;
                 for (int y = 0; y < SIZE; y++) {
-                    if (isSandBiome && y <= config.sandHeightThreshold) {
+                    if (isWater && y <= waterSurfaceHeight && y > lakeBedHeight) {
+                        blocks[x][y][z] = 4; // Water
+                        waterCount++;
+                    } else if (isWater && y <= lakeBedHeight && y >= 0) {
+                        blocks[x][y][z] = 3; // Sand for lake bed
+                    } else if (isSandBiome && y <= config.sandHeightThreshold) {
                         blocks[x][y][z] = 3; // Sand
                     } else if (y < height) {
                         blocks[x][y][z] = 2; // Stone
-                    } else if (y == height) {
+                    } else if (y == height && !isWater) {
                         blocks[x][y][z] = 1; // Grass
                     } else {
                         blocks[x][y][z] = 0; // Air
@@ -53,6 +88,7 @@ public class Chunk {
                 }
             }
         }
+        System.out.println("Chunk at " + pos + ": " + waterCount + " water blocks placed, water surface height: " + waterSurfaceHeight);
     }
 
     public byte getBlock(int x, int y, int z) {
@@ -70,6 +106,7 @@ public class Chunk {
         List<Float> vertices = new ArrayList<>();
         List<Float> texCoords = new ArrayList<>();
         List<Float> normals = new ArrayList<>();
+        List<Float> alphas = new ArrayList<>();
         List<Integer> indices = new ArrayList<>();
         int index = 0;
 
@@ -83,27 +120,27 @@ public class Chunk {
                     int wz = pos.getZ() * SIZE + z;
 
                     if (world.getBlock(wx + 1, y, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx + 1, y, wz, type, 0);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx + 1, y, wz, type, 0);
                         index += 4;
                     }
                     if (world.getBlock(wx - 1, y, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 1);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx, y, wz, type, 1);
                         index += 4;
                     }
                     if (world.getBlock(wx, y + 1, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, y + 1, wz, type, 2);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx, y + 1, wz, type, 2);
                         index += 4;
                     }
                     if (world.getBlock(wx, y - 1, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 3);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx, y, wz, type, 3);
                         index += 4;
                     }
                     if (world.getBlock(wx, y, wz + 1) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz + 1, type, 4);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx, y, wz + 1, type, 4);
                         index += 4;
                     }
                     if (world.getBlock(wx, y, wz - 1) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 5);
+                        addFace(vertices, texCoords, normals, alphas, indices, index, wx, y, wz, type, 5);
                         index += 4;
                     }
                 }
@@ -115,6 +152,7 @@ public class Chunk {
                     toFloatArray(vertices),
                     toFloatArray(texCoords),
                     toFloatArray(normals),
+                    toFloatArray(alphas),
                     toIntArray(indices)
             );
         } else {
@@ -124,17 +162,21 @@ public class Chunk {
     }
 
     private void addFace(List<Float> vertices, List<Float> texCoords, List<Float> normals,
-                         List<Integer> indices, int index, int x, int y, int z, byte type, int face) {
+                         List<Float> alphas, List<Integer> indices, int index, int x, int y, int z, byte type, int face) {
         float uMin, uMax;
+        float alpha = (type == 4) ? 0.5f : 1.0f;
         if (type == 1 && face == 2) { // Grass top
-            uMin = 0.0f;
-            uMax = 0.333f;
+            uMin = 0.0f;  // 0/64
+            uMax = 0.25f; // 16/64
         } else if (type == 3) { // Sand
-            uMin = 0.667f;
-            uMax = 1.0f;
-        } else { // Stone
-            uMin = 0.333f;
-            uMax = 0.667f;
+            uMin = 0.5f;  // 32/64
+            uMax = 0.75f; // 48/64
+        } else if (type == 4) { // Water
+            uMin = 0.75f; // 48/64
+            uMax = 1.0f;  // 64/64
+        } else { // Stone (type 2) or grass sides/bottom
+            uMin = 0.25f; // 16/64
+            uMax = 0.5f;  // 32/64
         }
 
         switch (face) {
@@ -171,6 +213,7 @@ public class Chunk {
         }
 
         texCoords.addAll(List.of(uMin, 0f, uMin, 1f, uMax, 1f, uMax, 0f));
+        alphas.addAll(List.of(alpha, alpha, alpha, alpha));
         indices.addAll(List.of(index, index + 1, index + 2, index, index + 2, index + 3));
     }
 
@@ -190,8 +233,8 @@ public class Chunk {
         return mesh;
     }
 
-    public void cleanup(){
-        if(mesh!=null){
+    public void cleanup() {
+        if (mesh != null) {
             mesh.cleanup();
             mesh = null;
         }

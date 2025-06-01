@@ -13,10 +13,11 @@ public class Mesh {
     private int vboID;
     private int tboID;
     private int nboID;
+    private int aboID; // Added for alpha VBO
     private int eboID;
     private int vertexCount;
 
-    public Mesh(float[] vertices, float[] texCoords, float[] normals, int[] indices) {
+    public Mesh(float[] vertices, float[] texCoords, float[] normals, float[] alphas, int[] indices) {
         vertexCount = indices.length;
 
         // Create VAO
@@ -50,6 +51,15 @@ public class Mesh {
         GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
         GL20.glEnableVertexAttribArray(2);
 
+        // Alpha VBO
+        aboID = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, aboID);
+        FloatBuffer alphaBuffer = BufferUtils.createFloatBuffer(alphas.length);
+        alphaBuffer.put(alphas).flip();
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, alphaBuffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(3, 1, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(3);
+
         // Indices EBO
         eboID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID);
@@ -72,6 +82,7 @@ public class Mesh {
         GL15.glDeleteBuffers(vboID);
         GL15.glDeleteBuffers(tboID);
         GL15.glDeleteBuffers(nboID);
+        GL15.glDeleteBuffers(aboID); // Added for alpha VBO
         GL15.glDeleteBuffers(eboID);
     }
 }

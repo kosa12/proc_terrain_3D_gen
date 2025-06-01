@@ -19,6 +19,17 @@ public class TextureLoader {
             throw new RuntimeException("Failed to load texture: " + STBImage.stbi_failure_reason());
         }
 
+        // Validate texture dimensions (expecting 64x16 for atlas.png)
+        if (width.get(0) != 64 || height.get(0) != 16) {
+            STBImage.stbi_image_free(data);
+            throw new RuntimeException("Texture atlas must be 64x16 pixels, got " + width.get(0) + "x" + height.get(0));
+        }
+
+        if (channels.get(0) != 4) {
+            STBImage.stbi_image_free(data);
+            throw new RuntimeException("Texture atlas must have 4 channels (RGBA), got " + channels.get(0));
+        }
+
         textureID = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width.get(0), height.get(0), 0,
