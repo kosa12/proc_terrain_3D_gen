@@ -8,7 +8,9 @@ import edu.kosa.terrainproject.terrain.World;
 
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiConfigFlags;
+import imgui.flag.ImGuiWindowFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImInt;
@@ -43,6 +45,11 @@ public class Main {
         ImString seedInput = new ImString(String.valueOf(config.seed), 64);
         String[] noiseTypes = {"Standard", "Ridged", "Billowy", "Hybrid"};
         ImInt currentNoiseType = new ImInt(0); // Selected noise type index
+        final int fpsSampleSize = 30;
+        float[] fpsSamples = new float[fpsSampleSize];
+        int fpsIndex = 0;
+        boolean fpsBufferFilled = false;
+
 
         while (!windowManager.shouldClose()) {
             double currentTime = windowManager.getTime();
@@ -51,6 +58,29 @@ public class Main {
 
             imGuiGlfw.newFrame();
             ImGui.newFrame();
+
+            // --- FPS Counter Start ---
+            fpsSamples[fpsIndex] = 1.0f / deltaTime;
+            fpsIndex = (fpsIndex + 1) % fpsSampleSize;
+            if (fpsIndex == 0) fpsBufferFilled = true;
+
+            int count = fpsBufferFilled ? fpsSampleSize : fpsIndex;
+            float fpsSum = 0.0f;
+            for (int i = 0; i < count; i++) {
+                fpsSum += fpsSamples[i];
+            }
+            float avgFps = fpsSum / count;
+
+
+            ImGui.setNextWindowPos(1100, 10, ImGuiCond.Always);
+            ImGui.setNextWindowSize(220, 60);
+            ImGui.begin("FPS Counter", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
+            ImGui.text(String.format("FPS: %.1f", avgFps));
+            ImGui.end();
+            // --- FPS Counter End ---
+
+
+
 
             float[] scale = new float[]{config.scale};
             int[] octaves = new int[]{config.octaves};
