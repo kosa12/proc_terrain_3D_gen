@@ -44,12 +44,11 @@ public class Main {
         double lastTime = windowManager.getTime();
         ImString seedInput = new ImString(String.valueOf(config.seed), 64);
         String[] noiseTypes = {"Standard", "Ridged", "Billowy", "Hybrid"};
-        ImInt currentNoiseType = new ImInt(0); // Selected noise type index
+        ImInt currentNoiseType = new ImInt(0);
         final int fpsSampleSize = 30;
         float[] fpsSamples = new float[fpsSampleSize];
         int fpsIndex = 0;
         boolean fpsBufferFilled = false;
-
 
         while (!windowManager.shouldClose()) {
             double currentTime = windowManager.getTime();
@@ -59,7 +58,7 @@ public class Main {
             imGuiGlfw.newFrame();
             ImGui.newFrame();
 
-            // --- FPS Counter Start ---
+            // FPS Counter
             fpsSamples[fpsIndex] = 1.0f / deltaTime;
             fpsIndex = (fpsIndex + 1) % fpsSampleSize;
             if (fpsIndex == 0) fpsBufferFilled = true;
@@ -71,17 +70,13 @@ public class Main {
             }
             float avgFps = fpsSum / count;
 
-
             ImGui.setNextWindowPos(1300, 10, ImGuiCond.Always);
             ImGui.setNextWindowSize(220, 60);
             ImGui.begin("FPS Counter", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
             ImGui.text(String.format("FPS: %.1f", avgFps));
             ImGui.end();
-            // --- FPS Counter End ---
 
-
-
-
+            // Terrain Settings
             float[] scale = new float[]{config.scale};
             int[] octaves = new int[]{config.octaves};
             float[] persistence = new float[]{config.persistence};
@@ -127,6 +122,10 @@ public class Main {
             }
             if (ImGui.button("Generate World")) {
                 world.regenerate(config);
+                // Clear and regenerate loaded chunks
+                loadedChunksMap.values().forEach(Chunk::cleanup);
+                loadedChunksMap.clear();
+                updateChunks(world, camera);
             }
             ImGui.end();
 
@@ -135,7 +134,6 @@ public class Main {
 
             GL20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             renderer.render(camera, new ArrayList<>(loadedChunksMap.values()), inputHandler.getRadius());
-
 
             ImGui.render();
             imGuiGl3.renderDrawData(ImGui.getDrawData());
@@ -186,7 +184,7 @@ public class Main {
 
         // Remove chunks out of range
         loadedChunksMap.keySet().removeIf(key -> {
-            if(!neededChunks.contains(key)) {
+            if (!neededChunks.contains(key)) {
                 loadedChunksMap.get(key).cleanup();
                 return true;
             }
