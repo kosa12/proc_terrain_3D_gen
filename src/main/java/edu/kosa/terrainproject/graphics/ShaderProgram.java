@@ -17,24 +17,28 @@ public class ShaderProgram {
                 "layout(location = 0) in vec3 aPos;\n" +
                 "layout(location = 1) in vec2 aTexCoord;\n" +
                 "layout(location = 2) in vec3 aNormal;\n" +
+                "layout(location = 3) in float aAlpha;\n" + // Added alpha attribute
                 "uniform mat4 model;\n" +
                 "uniform mat4 view;\n" +
                 "uniform mat4 projection;\n" +
                 "out vec2 TexCoord;\n" +
                 "out vec3 WorldPos;\n" +
                 "out vec3 Normal;\n" +
+                "out float Alpha;\n" + // Pass alpha to fragment shader
                 "void main() {\n" +
                 "    vec4 worldPos = model * vec4(aPos, 1.0);\n" +
                 "    WorldPos = worldPos.xyz;\n" +
                 "    gl_Position = projection * view * worldPos;\n" +
                 "    TexCoord = aTexCoord;\n" +
                 "    Normal = mat3(model) * aNormal;\n" +
+                "    Alpha = aAlpha;\n" + // Assign alpha
                 "}\n";
 
         String fragmentShaderSource = "#version 330 core\n" +
                 "in vec2 TexCoord;\n" +
                 "in vec3 WorldPos;\n" +
                 "in vec3 Normal;\n" +
+                "in float Alpha;\n" + // Receive alpha from vertex shader
                 "out vec4 FragColor;\n" +
                 "uniform sampler2D textureAtlas;\n" +
                 "uniform vec3 cameraPos;\n" +
@@ -43,22 +47,24 @@ public class ShaderProgram {
                 "uniform vec3 lightColor;\n" +
                 "void main() {\n" +
                 "    float dist = length(WorldPos.xz - cameraPos.xz);\n" +
-                "    float fade = smoothstep(radius - 5.0, radius, dist);\n" + // Reversed for correct fade
+                "    float fade = smoothstep(radius - 5.0, radius, dist);\n" +
                 "    vec3 norm = normalize(Normal);\n" +
                 "    float diff = max(dot(norm, -lightDir), 0.2);\n" +
                 "    vec3 diffuse = diff * lightColor;\n" +
                 "    vec4 texColor = texture(textureAtlas, TexCoord);\n" +
-                "    vec4 terrainColor = vec4(texColor.rgb * diffuse, texColor.a);\n" +
+                "    vec4 terrainColor = vec4(texColor.rgb * diffuse, texColor.a * Alpha);\n" + // Multiply texture alpha with vertex alpha
                 "    vec4 clearColor = vec4(0.1, 0.1, 0.3, 1.0);\n" +
                 "    FragColor = mix(terrainColor, clearColor, clamp(fade, 0.0, 1.0));\n" +
                 "}\n";
 
         String fallbackFragmentSource = "#version 330 core\n" +
                 "in vec2 TexCoord;\n" +
+                "in float Alpha;\n" + // Receive alpha for fallback
                 "out vec4 FragColor;\n" +
                 "uniform sampler2D textureAtlas;\n" +
                 "void main() {\n" +
-                "    FragColor = texture(textureAtlas, TexCoord);\n" +
+                "    vec4 texColor = texture(textureAtlas, TexCoord);\n" +
+                "    FragColor = vec4(texColor.rgb, texColor.a * Alpha);\n" + // Apply alpha
                 "}\n";
 
         programID = GL20.glCreateProgram();
