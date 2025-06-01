@@ -8,7 +8,7 @@ public class InputHandler {
     private final Camera camera;
     private double lastX;
     private boolean firstMouse = true;
-    private final float visibilityRadius = 100f; // Fixed visibility radius
+    private final float visibilityRadius = 95f; // Fixed visibility radius
     private boolean cursorVisible = false;
 
     public InputHandler(long window, Camera camera) {
