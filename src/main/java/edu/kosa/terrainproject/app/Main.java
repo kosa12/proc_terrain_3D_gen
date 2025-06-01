@@ -39,7 +39,6 @@ public class Main {
         Renderer renderer = new Renderer(shaderProgram, textureID);
         InputHandler inputHandler = new InputHandler(windowManager.getWindow(), camera);
 
-        List<Chunk> loadedChunks = new ArrayList<>();
         updateChunks(world, camera);
 
         double lastTime = windowManager.getTime();
