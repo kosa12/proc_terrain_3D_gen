@@ -6,7 +6,11 @@ import edu.kosa.terrainproject.noise.PerlinNoise;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Chunk {
+    public static final Logger logger = LoggerFactory.getLogger(Chunk.class);
     public static final int SIZE = 16;
     private final byte[][][] blocks;
     private final ChunkPos pos;
@@ -42,7 +46,7 @@ public class Chunk {
                 }
             }
         }
-        System.out.println("Chunk at " + pos + ": " + waterRegionCount + " water regions identified");
+        logger.info("Chunk at {}: {} water regions identified", pos, waterRegionCount);
 
         // Determine water surface height
         int waterSurfaceHeight = Integer.MAX_VALUE;
@@ -113,7 +117,7 @@ public class Chunk {
                 }
             }
         }
-        // System.out.println("Chunk at " + pos + ": " + waterCount + " water blocks placed, water surface height: " + waterSurfaceHeight);
+        logger.info("Chunk at {}: {} water blocks placed, water surface height: {}", pos, waterCount, waterSurfaceHeight);
     }
 
     public byte getBlock(int x, int y, int z) {

@@ -17,9 +17,13 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.lwjgl.opengl.GL20;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class Main {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private static final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
     private static final int RENDER_DISTANCE = 6;
@@ -27,6 +31,7 @@ public class Main {
 
     public static void main(String[] args) {
         WindowManager windowManager = new WindowManager(1400, 950, "CircleScape");
+        LOGGER.info("Window created");
 
         initImGui(windowManager.getWindow());
 
@@ -121,6 +126,7 @@ public class Main {
                 }
             }
             if (ImGui.button("Generate World")) {
+                LOGGER.info("Generating world with seed {}", config.seed);
                 world.regenerate(config);
                 // Clear and regenerate loaded chunks
                 loadedChunksMap.values().forEach(Chunk::cleanup);
