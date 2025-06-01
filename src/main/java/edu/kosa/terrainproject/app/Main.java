@@ -26,7 +26,7 @@ public class Main {
     private static final Map<String, Chunk> loadedChunksMap = new HashMap<>();
 
     public static void main(String[] args) {
-        WindowManager windowManager = new WindowManager(1200, 800, "CircleScape");
+        WindowManager windowManager = new WindowManager(1400, 950, "CircleScape");
 
         initImGui(windowManager.getWindow());
 
@@ -72,7 +72,7 @@ public class Main {
             float avgFps = fpsSum / count;
 
 
-            ImGui.setNextWindowPos(1100, 10, ImGuiCond.Always);
+            ImGui.setNextWindowPos(1300, 10, ImGuiCond.Always);
             ImGui.setNextWindowSize(220, 60);
             ImGui.begin("FPS Counter", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
             ImGui.text(String.format("FPS: %.1f", avgFps));
@@ -91,7 +91,7 @@ public class Main {
             int[] sandHeightThreshold = new int[]{config.sandHeightThreshold};
 
             ImGui.begin("Terrain Settings");
-            ImGui.setWindowSize(300, 290);
+            ImGui.setWindowSize(300, 300);
             ImGui.setWindowPos(10, 10);
             ImGui.text("Press Enter to toggle cursor for GUI interaction");
             if (ImGui.combo("Noise Type", currentNoiseType, noiseTypes)) {
