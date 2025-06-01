@@ -113,7 +113,7 @@ public class Chunk {
                 }
             }
         }
-        System.out.println("Chunk at " + pos + ": " + waterCount + " water blocks placed, water surface height: " + waterSurfaceHeight);
+        // System.out.println("Chunk at " + pos + ": " + waterCount + " water blocks placed, water surface height: " + waterSurfaceHeight);
     }
 
     public byte getBlock(int x, int y, int z) {

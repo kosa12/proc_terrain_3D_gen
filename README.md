@@ -7,10 +7,16 @@ A Java-based 3D procedural terrain generator built using LWJGL (Lightweight Java
 ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
 ![Arch](https://img.shields.io/badge/Arch%20Linux-1793D1?logo=arch-linux&logoColor=fff&style=for-the-badge)
 
+----
+
+![Screenshot](./screenshot/img.png)
+
+----
+
 ## Features
 - **Procedural Terrain**: Generates 3D terrain using Perlin noise with fractal Brownian motion layering for natural-looking landscapes.
 - **Customizable Input**: Supports seed values and adjustable metrics (e.g., terrain height, scale) via an ImGUI interface.
-- **Biomes**: Includes grass and sand biomes with texture atlasing for efficient rendering.
+- **Biomes**: Includes grass, lakes, and sand biomes, rendered with texture atlasing for smooth visuals.
 - **Optimization**: Implements chunk-based rendering (16x16 chunks) with culling to improve performance.
 - **Input System**:
     - WASD for camera movement.
