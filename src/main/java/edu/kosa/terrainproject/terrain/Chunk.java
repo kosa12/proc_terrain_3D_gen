@@ -23,26 +23,19 @@ public class Chunk {
     }
 
     private void generateTerrain() {
-        int sandCount = 0;
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 int worldX = pos.getX() * SIZE + x;
                 int worldZ = pos.getZ() * SIZE + z;
-                double noiseValue;
-                switch (config.noiseType) {
-                    case "Ridged":
-                        noiseValue = noise.ridgedFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
-                        break;
-                    case "Billowy":
-                        noiseValue = noise.billowyFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
-                        break;
-                    case "Hybrid":
-                        noiseValue = noise.hybridFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
-                        break;
-                    default:
-                        noiseValue = noise.fbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
-                        break;
-                }
+                double noiseValue = switch (config.noiseType) {
+                    case "Ridged" ->
+                            noise.ridgedFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                    case "Billowy" ->
+                            noise.billowyFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                    case "Hybrid" ->
+                            noise.hybridFbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                    default -> noise.fbm(worldX, worldZ, config.octaves, config.persistence, config.lacunarity);
+                };
                 int height = (int) Math.floor(noiseValue * config.heightScale + config.baseHeight);
                 height = Math.max(0, Math.min(SIZE - 1, height));
 
@@ -50,7 +43,6 @@ public class Chunk {
                 for (int y = 0; y < SIZE; y++) {
                     if (isSandBiome && y <= config.sandHeightThreshold) {
                         blocks[x][y][z] = 3; // Sand
-                        sandCount++;
                     } else if (y < height) {
                         blocks[x][y][z] = 2; // Stone
                     } else if (y == height) {
@@ -88,31 +80,30 @@ public class Chunk {
                     if (type == 0) continue;
 
                     int wx = pos.getX() * SIZE + x;
-                    int wy = y;
                     int wz = pos.getZ() * SIZE + z;
 
-                    if (world.getBlock(wx + 1, wy, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx + 1, wy, wz, type, 0);
+                    if (world.getBlock(wx + 1, y, wz) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx + 1, y, wz, type, 0);
                         index += 4;
                     }
-                    if (world.getBlock(wx - 1, wy, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, wy, wz, type, 1);
+                    if (world.getBlock(wx - 1, y, wz) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 1);
                         index += 4;
                     }
-                    if (world.getBlock(wx, wy + 1, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, wy + 1, wz, type, 2);
+                    if (world.getBlock(wx, y + 1, wz) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx, y + 1, wz, type, 2);
                         index += 4;
                     }
-                    if (world.getBlock(wx, wy - 1, wz) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, wy, wz, type, 3);
+                    if (world.getBlock(wx, y - 1, wz) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 3);
                         index += 4;
                     }
-                    if (world.getBlock(wx, wy, wz + 1) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, wy, wz + 1, type, 4);
+                    if (world.getBlock(wx, y, wz + 1) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz + 1, type, 4);
                         index += 4;
                     }
-                    if (world.getBlock(wx, wy, wz - 1) == 0) {
-                        addFace(vertices, texCoords, normals, indices, index, wx, wy, wz, type, 5);
+                    if (world.getBlock(wx, y, wz - 1) == 0) {
+                        addFace(vertices, texCoords, normals, indices, index, wx, y, wz, type, 5);
                         index += 4;
                     }
                 }
@@ -197,5 +188,12 @@ public class Chunk {
 
     public Mesh getMesh() {
         return mesh;
+    }
+
+    public void cleanup(){
+        if(mesh!=null){
+            mesh.cleanup();
+            mesh = null;
+        }
     }
 }

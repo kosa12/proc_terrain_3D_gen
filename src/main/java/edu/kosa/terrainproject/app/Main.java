@@ -17,12 +17,15 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.lwjgl.opengl.GL20;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Main {
     private static final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private static final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
+    private static final int RENDER_DISTANCE = 6;
+    private static final Map<String, Chunk> loadedChunksMap = new HashMap<>();
 
     public static void main(String[] args) {
         WindowManager windowManager = new WindowManager(1200, 800, "CircleScape");
@@ -38,8 +41,7 @@ public class Main {
         Renderer renderer = new Renderer(shaderProgram, textureID);
         InputHandler inputHandler = new InputHandler(windowManager.getWindow(), camera);
 
-        List<Chunk> loadedChunks = new ArrayList<>();
-        updateChunks(world, camera, loadedChunks);
+        updateChunks(world, camera);
 
         double lastTime = windowManager.getTime();
         ImString seedInput = new ImString(String.valueOf(config.seed), 64);
@@ -127,16 +129,15 @@ public class Main {
             }
             if (ImGui.button("Generate World")) {
                 world.regenerate(config);
-                loadedChunks.clear();
-                updateChunks(world, camera, loadedChunks);
             }
             ImGui.end();
 
             inputHandler.processInput(deltaTime);
-            updateChunks(world, camera, loadedChunks);
+            updateChunks(world, camera);
 
             GL20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-            renderer.render(camera, loadedChunks, inputHandler.getRadius());
+            renderer.render(camera, new ArrayList<>(loadedChunksMap.values()), inputHandler.getRadius());
+
 
             ImGui.render();
             imGuiGl3.renderDrawData(ImGui.getDrawData());
@@ -145,11 +146,6 @@ public class Main {
         }
 
         cleanupImGui();
-        for (Chunk chunk : loadedChunks) {
-            if (chunk.getMesh() != null) {
-                chunk.getMesh().cleanup();
-            }
-        }
         textureLoader.cleanup();
         shaderProgram.cleanup();
         windowManager.cleanup();
@@ -170,23 +166,33 @@ public class Main {
         ImGui.destroyContext();
     }
 
-    private static void updateChunks(World world, Camera camera, List<Chunk> loadedChunks) {
-        loadedChunks.clear();
-        int renderDistance = 6;
+    private static void updateChunks(World world, Camera camera) {
         int chunkX = (int) Math.floor(camera.getPosition().x / Chunk.SIZE);
         int chunkZ = (int) Math.floor(camera.getPosition().z / Chunk.SIZE);
 
-        for (int x = chunkX - renderDistance; x <= chunkX + renderDistance; x++) {
-            for (int z = chunkZ - renderDistance; z <= chunkZ + renderDistance; z++) {
-                Chunk chunk = world.getChunk(x, z);
-                if (chunk.getMesh() == null) {
-                    chunk.generateMesh(world);
+        Set<String> neededChunks = new HashSet<>();
+
+        for (int x = chunkX - RENDER_DISTANCE; x <= chunkX + RENDER_DISTANCE; x++) {
+            for (int z = chunkZ - RENDER_DISTANCE; z <= chunkZ + RENDER_DISTANCE; z++) {
+                String key = x + "," + z;
+                neededChunks.add(key);
+                if (!loadedChunksMap.containsKey(key)) {
+                    Chunk chunk = world.getChunk(x, z);
+                    if (chunk.getMesh() == null) {
+                        chunk.generateMesh(world);
+                    }
+                    loadedChunksMap.put(key, chunk);
                 }
-                if (chunk.getMesh() == null) {
-                    System.err.println("Warning: Null mesh for chunk at (" + x + ", " + z + ")");
-                }
-                loadedChunks.add(chunk);
             }
         }
+
+        // Remove chunks out of range
+        loadedChunksMap.keySet().removeIf(key -> {
+            if(!neededChunks.contains(key)) {
+                loadedChunksMap.get(key).cleanup();
+                return true;
+            }
+            return false;
+        });
     }
 }
