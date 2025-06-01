@@ -198,4 +198,11 @@ public class Chunk {
     public Mesh getMesh() {
         return mesh;
     }
+
+    public void cleanup(){
+        if(mesh!=null){
+            mesh.cleanup();
+            mesh = null;
+        }
+    }
 }
