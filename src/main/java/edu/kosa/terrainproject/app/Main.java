@@ -17,9 +17,7 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.lwjgl.opengl.GL20;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
     private static final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
