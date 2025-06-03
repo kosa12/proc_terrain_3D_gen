@@ -87,7 +87,7 @@ public class Chunk {
         }
 
         if (waterSurfaceHeight == Integer.MAX_VALUE) {
-            waterSurfaceHeight = (int) config.sandHeightThreshold;
+            waterSurfaceHeight = config.sandHeightThreshold;
         }
         waterSurfaceHeight = Math.max(1, Math.min(SIZE - 1, waterSurfaceHeight));
         world.setWaterSurfaceHeight(pos, waterSurfaceHeight);
@@ -104,7 +104,7 @@ public class Chunk {
                     if (isWater && y <= waterSurfaceHeight && y > lakeBedHeight) {
                         blocks[x][y][z] = 4; // Water
                         waterCount++;
-                    } else if (isWater && y <= lakeBedHeight && y >= 0) {
+                    } else if (isWater && y <= lakeBedHeight) {
                         blocks[x][y][z] = 3; // Sand for lake bed
                     } else if (isSandBiome && y <= config.sandHeightThreshold) {
                         blocks[x][y][z] = 3; // Sand

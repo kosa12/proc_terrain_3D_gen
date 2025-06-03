@@ -89,7 +89,6 @@ public class Main {
             float[] lacunarity = new float[]{config.lacunarity};
             float[] heightScale = new float[]{config.heightScale};
             float[] baseHeight = new float[]{config.baseHeight};
-            int[] sandHeightThreshold = new int[]{config.sandHeightThreshold};
 
             ImGui.begin("Terrain Settings");
             ImGui.setWindowSize(300, 300);
