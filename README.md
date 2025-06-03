@@ -61,6 +61,33 @@ A Java-based 3D procedural terrain generator built using LWJGL (Lightweight Java
         - **Billowy**: Creates soft, rolling hills with a cloud-like appearance.
         - **Hybrid**: Combines Standard and Ridged for varied terrain with both smooth and sharp features.
 
+## Interesting configs:
+
+1. **Hills and lakes**
+    - scale: `0.123`
+    - octaves: `9`
+    - persistance: `0.100`
+    - lacunarity: `1.000`
+    - height scale: `15.695`
+    - base height: `5.041`
+    - sand height treshold: `4`
+    - seed: `-2115347812888387989`
+    - noise type: `billowy`
+
+    ![Screenshot](./screenshot/hills_lakes.png)
+
+2. **Grass dune**:
+    - scale: `0.088`
+    - octaves: `3`
+    - persistance: `0.173`
+    - lacunarity: `1.000`
+    - height scale: `14.720`
+    - base height: `3.740`
+    - sand height treshold: `4`
+    - seed: `4459600708594632311`
+    - noise type: `billowy`
+
+    ![Screenshot](./screenshot/grass_dune.png)
 
 ## Prerequisites
 - **Java 21**: Ensure you have JDK 21 installed.
@@ -117,13 +144,20 @@ src
     │               ├── input
     │               │   └── InputHandler.java
     │               ├── noise
-    │               │   └── PerlinNoise.java
+    │               │   ├── FbmGenerator.java
+    │               │   ├── GradientTable.java
+    │               │   ├── NoiseConfig.java
+    │               │   ├── NoiseGenerator.java
+    │               │   ├── NoiseVariant.java
+    │               │   ├── PerlinNoiseGenerator.java
+    │               │   └── PermutationTable.java
     │               └── terrain
     │                   ├── Chunk.java
     │                   ├── ChunkPos.java
     │                   ├── TerrainConfig.java
     │                   └── World.java
     └── resources
+        ├── logback.xml
         └── textures
             └── atlas.png
 ```
