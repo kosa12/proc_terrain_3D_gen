@@ -24,7 +24,7 @@ public class FbmGenerator {
 
         for (int i = 0; i < octaves; i++) {
             total += noiseGenerator.noise(x * frequency, y * frequency) * amplitude;
-            maxValue += total;
+            maxValue += amplitude;
             amplitude *= persistence;
             frequency *= lacunarity;
         }
