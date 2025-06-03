@@ -1,27 +1,31 @@
 package edu.kosa.terrainproject.terrain;
 
 import edu.kosa.terrainproject.graphics.Mesh;
-import edu.kosa.terrainproject.noise.PerlinNoise;
+import edu.kosa.terrainproject.noise.FbmGenerator;
+import edu.kosa.terrainproject.noise.NoiseConfig;
+import edu.kosa.terrainproject.noise.NoiseVariant;
+import edu.kosa.terrainproject.noise.PerlinNoiseGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Chunk {
-    public static final Logger logger = LoggerFactory.getLogger(Chunk.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Chunk.class);
     public static final int SIZE = 16;
     private final byte[][][] blocks;
     private final ChunkPos pos;
-    private final PerlinNoise noise;
+    private final FbmGenerator terrainFbm;
+    private final FbmGenerator waterFbm;
     private final TerrainConfig config;
     private final World world;
     private Mesh mesh;
 
-    public Chunk(ChunkPos pos, PerlinNoise noise, TerrainConfig config, World world) {
+    public Chunk(ChunkPos pos, PerlinNoiseGenerator noise, TerrainConfig config, World world) {
         this.pos = pos;
-        this.noise = noise;
+        this.terrainFbm = new FbmGenerator(noise);
+        this.waterFbm = new FbmGenerator(new PerlinNoiseGenerator(config.seed + 1, 0.04)); // Offset seed for water
         this.config = config;
         this.world = world;
         this.blocks = new byte[SIZE][SIZE][SIZE];
@@ -30,31 +34,31 @@ public class Chunk {
 
     private void generateTerrain() {
         int waterCount = 0;
-        int waterRegionCount = 0; // Debug: count water regions
-        // First pass: compute terrain heights
+        int waterRegionCount = 0;
         int[][] terrainHeights = new int[SIZE][SIZE];
         boolean[][] isWaterRegion = new boolean[SIZE][SIZE];
+        NoiseConfig terrainConfig = NoiseConfig.forTerrain(config.seed, config.scale);
+        NoiseVariant noiseVariant = NoiseVariant.valueOf(config.noiseType.toUpperCase());
+
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 int worldX = pos.getX() * SIZE + x;
                 int worldZ = pos.getZ() * SIZE + z;
                 terrainHeights[x][z] = world.getTerrainHeight(worldX, worldZ);
-                double waterNoiseValue = noise.waterFbm(worldX, worldZ);
-                isWaterRegion[x][z] = waterNoiseValue > 0.6; // Lowered threshold
+                double waterNoiseValue = waterFbm.generate(worldX, worldZ, NoiseConfig.forWater(config.seed + 1), NoiseVariant.STANDARD);
+                isWaterRegion[x][z] = waterNoiseValue > 0.6;
                 if (isWaterRegion[x][z]) {
                     waterRegionCount++;
                 }
             }
         }
-        logger.info("Chunk at {}: {} water regions identified", pos, waterRegionCount);
+        LOGGER.debug("Chunk at {}: {} water regions identified", pos, waterRegionCount);
 
-        // Determine water surface height
         int waterSurfaceHeight = Integer.MAX_VALUE;
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 if (!isWaterRegion[x][z]) continue;
 
-                // Check surrounding terrain (within chunk and boundaries)
                 int maxSurroundHeight = terrainHeights[x][z];
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dz = -1; dz <= 1; dz++) {
@@ -74,7 +78,6 @@ public class Chunk {
             }
         }
 
-        // Align with adjacent chunks’ water heights
         for (int side = 0; side < 4; side++) {
             int offsetX = side == 0 ? -1 : side == 1 ? 1 : 0;
             int offsetZ = side == 2 ? -1 : side == 3 ? 1 : 0;
@@ -83,14 +86,12 @@ public class Chunk {
             waterSurfaceHeight = Math.min(waterSurfaceHeight, neighborWaterHeight);
         }
 
-        // Ensure minimum water height
         if (waterSurfaceHeight == Integer.MAX_VALUE) {
-            waterSurfaceHeight = (int) config.baseHeight + 2; // Above base height
+            waterSurfaceHeight = config.sandHeightThreshold;
         }
         waterSurfaceHeight = Math.max(1, Math.min(SIZE - 1, waterSurfaceHeight));
         world.setWaterSurfaceHeight(pos, waterSurfaceHeight);
 
-        // Second pass: place blocks
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 int height = terrainHeights[x][z];
@@ -117,7 +118,7 @@ public class Chunk {
                 }
             }
         }
-        logger.info("Chunk at {}: {} water blocks placed, water surface height: {}", pos, waterCount, waterSurfaceHeight);
+        LOGGER.debug("Chunk at {}: {} water blocks placed, water surface height: {}", pos, waterCount, waterSurfaceHeight);
     }
 
     public byte getBlock(int x, int y, int z) {
@@ -125,6 +126,10 @@ public class Chunk {
             return 0;
         }
         return blocks[x][y][z];
+    }
+
+    public ChunkPos getPos() {
+        return pos;
     }
 
     public void generateMesh(World world) {
@@ -181,7 +186,7 @@ public class Chunk {
                     toIntArray(indices)
             );
         } else {
-            System.err.println("Warning: Empty mesh for chunk at " + pos);
+            LOGGER.warn("Empty mesh for chunk at {}", pos);
             mesh = null;
         }
     }

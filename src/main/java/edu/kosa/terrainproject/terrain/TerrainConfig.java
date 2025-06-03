@@ -7,8 +7,11 @@ public class TerrainConfig {
     public float lacunarity = 2.6f; // FBM lacunarity
     public float heightScale = 8.7f; // Height multiplier
     public float baseHeight = 3.1f; // Base height
-    public int sandHeightThreshold = 6; // Max y for sand blocks
-    public long seed = 67890L; // World seed
+    public int sandHeightThreshold = 4; // Max y for sand blocks
+    public long seed;// World seed
     public String noiseType = "Standard"; // Standard, Ridged, Billowy, Hybrid
 
+    public TerrainConfig(long initialSeed) {
+        this.seed = initialSeed;
+    }
 }

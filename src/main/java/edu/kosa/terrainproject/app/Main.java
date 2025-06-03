@@ -35,7 +35,8 @@ public class Main {
 
         initImGui(windowManager.getWindow());
 
-        TerrainConfig config = new TerrainConfig();
+        long initialSeed = new Random().nextLong();
+        TerrainConfig config = new TerrainConfig(initialSeed);
         World world = new World(config);
         Camera camera = new Camera(800f / 600f);
         TextureLoader textureLoader = new TextureLoader();
@@ -88,7 +89,6 @@ public class Main {
             float[] lacunarity = new float[]{config.lacunarity};
             float[] heightScale = new float[]{config.heightScale};
             float[] baseHeight = new float[]{config.baseHeight};
-            int[] sandHeightThreshold = new int[]{config.sandHeightThreshold};
 
             ImGui.begin("Terrain Settings");
             ImGui.setWindowSize(300, 300);
@@ -114,9 +114,6 @@ public class Main {
             }
             if (ImGui.sliderFloat("Base Height", baseHeight, 0.0f, 8.0f)) {
                 config.baseHeight = baseHeight[0];
-            }
-            if (ImGui.sliderInt("Sand Height Threshold", sandHeightThreshold, 1, 8)) {
-                config.sandHeightThreshold = sandHeightThreshold[0];
             }
             if (ImGui.inputText("Seed", seedInput)) {
                 try {
