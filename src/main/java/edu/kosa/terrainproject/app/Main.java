@@ -35,7 +35,8 @@ public class Main {
 
         initImGui(windowManager.getWindow());
 
-        TerrainConfig config = new TerrainConfig();
+        long initialSeed = new Random().nextLong();
+        TerrainConfig config = new TerrainConfig(initialSeed);
         World world = new World(config);
         Camera camera = new Camera(800f / 600f);
         TextureLoader textureLoader = new TextureLoader();

@@ -25,7 +25,7 @@ public class Chunk {
     public Chunk(ChunkPos pos, PerlinNoiseGenerator noise, TerrainConfig config, World world) {
         this.pos = pos;
         this.terrainFbm = new FbmGenerator(noise);
-        this.waterFbm = new FbmGenerator(new PerlinNoiseGenerator(config.seed + 1, 0.02)); // Offset seed for water
+        this.waterFbm = new FbmGenerator(new PerlinNoiseGenerator(config.seed + 1, 0.04)); // Offset seed for water
         this.config = config;
         this.world = world;
         this.blocks = new byte[SIZE][SIZE][SIZE];
