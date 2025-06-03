@@ -10,5 +10,4 @@ public class TerrainConfig {
     public int sandHeightThreshold = 4; // Max y for sand blocks
     public long seed = 67890L; // World seed
     public String noiseType = "Standard"; // Standard, Ridged, Billowy, Hybrid
-
 }

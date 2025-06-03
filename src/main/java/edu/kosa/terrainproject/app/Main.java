@@ -115,9 +115,6 @@ public class Main {
             if (ImGui.sliderFloat("Base Height", baseHeight, 0.0f, 8.0f)) {
                 config.baseHeight = baseHeight[0];
             }
-            if (ImGui.sliderInt("Sand Height Threshold", sandHeightThreshold, 1, 8)) {
-                config.sandHeightThreshold = sandHeightThreshold[0];
-            }
             if (ImGui.inputText("Seed", seedInput)) {
                 try {
                     config.seed = Long.parseLong(seedInput.get().trim());
