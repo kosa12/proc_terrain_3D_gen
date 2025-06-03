@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class World {
     private final Map<ChunkPos, Chunk> chunks;
-    private final FbmGenerator terrainFbm;
+    private FbmGenerator terrainFbm;
     private TerrainConfig config;
     private final Map<ChunkPos, Integer> waterSurfaceHeights;
 
@@ -25,6 +25,7 @@ public class World {
         chunks.clear();
         waterSurfaceHeights.clear();
         this.config = newConfig;
+        this.terrainFbm = new FbmGenerator(new PerlinNoiseGenerator(newConfig.seed, newConfig.scale));
     }
 
     public Chunk getChunk(int chunkX, int chunkZ) {
@@ -42,7 +43,7 @@ public class World {
     }
 
     public int getTerrainHeight(int worldX, int worldZ) {
-        NoiseConfig noiseConfig = NoiseConfig.forTerrain(config.seed, config.scale);
+        NoiseConfig noiseConfig = new NoiseConfig(config.seed, config.scale, config.octaves, config.persistence, config.lacunarity);
         NoiseVariant noiseVariant = NoiseVariant.valueOf(config.noiseType.toUpperCase());
         double noiseValue = terrainFbm.generate(worldX, worldZ, noiseConfig, noiseVariant);
         int height = (int) Math.floor(noiseValue * config.heightScale + config.baseHeight);
@@ -50,7 +51,7 @@ public class World {
     }
 
     public int getWaterSurfaceHeight(ChunkPos pos) {
-        return waterSurfaceHeights.getOrDefault(pos, (int) config.sandHeightThreshold);
+        return waterSurfaceHeights.getOrDefault(pos, config.sandHeightThreshold);
     }
 
     public void setWaterSurfaceHeight(ChunkPos pos, int height) {

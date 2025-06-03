@@ -89,43 +89,57 @@ public class Main {
             float[] lacunarity = new float[]{config.lacunarity};
             float[] heightScale = new float[]{config.heightScale};
             float[] baseHeight = new float[]{config.baseHeight};
+            int[] sandHeightThreshold = new int[]{config.sandHeightThreshold};
 
             ImGui.begin("Terrain Settings");
-            ImGui.setWindowSize(300, 300);
+            ImGui.setWindowSize(400, 270);
             ImGui.setWindowPos(10, 10);
             ImGui.text("Press Enter to toggle cursor for GUI interaction");
-            if (ImGui.combo("Noise Type", currentNoiseType, noiseTypes)) {
+            boolean configChanged = false;
+
+            if (ImGui.combo("NoiseType", currentNoiseType, noiseTypes)) {
                 config.noiseType = noiseTypes[currentNoiseType.get()];
+                configChanged = true;
             }
             if (ImGui.sliderFloat("Scale", scale, 0.01f, 0.2f)) {
                 config.scale = scale[0];
+                configChanged = true;
             }
             if (ImGui.sliderInt("Octaves", octaves, 1, 10)) {
                 config.octaves = octaves[0];
+                configChanged = true;
             }
             if (ImGui.sliderFloat("Persistence", persistence, 0.1f, 1.0f)) {
                 config.persistence = persistence[0];
+                configChanged = true;
             }
             if (ImGui.sliderFloat("Lacunarity", lacunarity, 1.0f, 4.0f)) {
                 config.lacunarity = lacunarity[0];
+                configChanged = true;
             }
-            if (ImGui.sliderFloat("Height Scale", heightScale, 1.0f, 16.0f)) {
+            if (ImGui.sliderFloat("HeightScale", heightScale, 1.0f, 16.0f)) {
                 config.heightScale = heightScale[0];
+                configChanged = true;
             }
-            if (ImGui.sliderFloat("Base Height", baseHeight, 0.0f, 8.0f)) {
+            if (ImGui.sliderFloat("BaseHeight", baseHeight, 0.0f, 8.0f)) {
                 config.baseHeight = baseHeight[0];
+                configChanged = true;
+            }
+            if (ImGui.sliderInt("SandHeightThreshold", sandHeightThreshold, 0, 16)) {
+                config.sandHeightThreshold = sandHeightThreshold[0];
+                configChanged = true;
             }
             if (ImGui.inputText("Seed", seedInput)) {
                 try {
                     config.seed = Long.parseLong(seedInput.get().trim());
+                    configChanged = true;
                 } catch (NumberFormatException e) {
                     config.seed = 67890L;
                 }
             }
-            if (ImGui.button("Generate World")) {
+            if (configChanged) {
                 LOGGER.info("Generating world with seed {}", config.seed);
                 world.regenerate(config);
-                // Clear and regenerate loaded chunks
                 loadedChunksMap.values().forEach(Chunk::cleanup);
                 loadedChunksMap.clear();
                 updateChunks(world, camera);
