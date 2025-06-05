@@ -7,7 +7,6 @@ import edu.kosa.terrainproject.noise.NoiseVariant;
 import edu.kosa.terrainproject.noise.PerlinNoiseGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +24,10 @@ public class Chunk {
     public Chunk(ChunkPos pos, PerlinNoiseGenerator noise, TerrainConfig config, World world) {
         this.pos = pos;
         this.terrainFbm = new FbmGenerator(noise);
-        this.waterFbm = new FbmGenerator(new PerlinNoiseGenerator(config.seed + 1, 0.04)); // Offset seed for water
+        this.waterFbm = new FbmGenerator(new PerlinNoiseGenerator(config.seed + 1, 0.04));
         this.config = config;
         this.world = world;
-        this.blocks = new byte[SIZE][SIZE][SIZE];
+        this.blocks = new byte[SIZE][config.maxHeight][SIZE]; // Updated to maxHeight
         generateTerrain();
     }
 
@@ -37,6 +36,7 @@ public class Chunk {
         int waterRegionCount = 0;
         int[][] terrainHeights = new int[SIZE][SIZE];
         boolean[][] isWaterRegion = new boolean[SIZE][SIZE];
+        double[][] blendFactors = new double[SIZE][SIZE]; // For biome transitions
         NoiseConfig terrainConfig = NoiseConfig.forTerrain(config.seed, config.scale);
         NoiseVariant noiseVariant = NoiseVariant.valueOf(config.noiseType.toUpperCase());
 
@@ -49,6 +49,16 @@ public class Chunk {
                 isWaterRegion[x][z] = waterNoiseValue > 0.6;
                 if (isWaterRegion[x][z]) {
                     waterRegionCount++;
+                }
+                // Calculate blend factor for grass-to-sand transition
+                double sandNoiseValue = terrainFbm.generate(worldX, worldZ, terrainConfig, noiseVariant);
+                sandNoiseValue = (sandNoiseValue + 1) / 2; // Normalize to [0, 1]
+                int baseHeight = (int) Math.floor(sandNoiseValue * config.heightScale + config.baseHeight);
+                if (!isWaterRegion[x][z] && baseHeight <= config.sandHeightThreshold + config.biomeBlendRange) {
+                    double t = (baseHeight - (config.sandHeightThreshold - config.biomeBlendRange / 2)) / config.biomeBlendRange;
+                    blendFactors[x][z] = Math.max(0, Math.min(1, t));
+                } else {
+                    blendFactors[x][z] = isWaterRegion[x][z] ? 0 : 1; // 0 for water, 1 for full grass
                 }
             }
         }
@@ -89,7 +99,7 @@ public class Chunk {
         if (waterSurfaceHeight == Integer.MAX_VALUE) {
             waterSurfaceHeight = config.sandHeightThreshold;
         }
-        waterSurfaceHeight = Math.max(1, Math.min(SIZE - 1, waterSurfaceHeight));
+        waterSurfaceHeight = Math.max(1, Math.min(config.maxHeight - 1, waterSurfaceHeight));
         world.setWaterSurfaceHeight(pos, waterSurfaceHeight);
 
         for (int x = 0; x < SIZE; x++) {
@@ -99,8 +109,15 @@ public class Chunk {
                 int waterDepth = isWater ? 3 : 0;
                 int lakeBedHeight = isWater ? waterSurfaceHeight - waterDepth : -1;
 
-                boolean isSandBiome = height <= config.sandHeightThreshold && !isWater;
-                for (int y = 0; y < SIZE; y++) {
+                // Blend height for grass-to-sand transition
+                double blendFactor = blendFactors[x][z];
+                int blendedHeight = height;
+                if (!isWater && blendFactor < 1 && height <= config.sandHeightThreshold + config.biomeBlendRange) {
+                    blendedHeight = (int) lerp(config.sandHeightThreshold, height, blendFactor);
+                }
+
+                boolean isSandBiome = blendedHeight <= config.sandHeightThreshold && !isWater;
+                for (int y = 0; y < config.maxHeight; y++) {
                     if (isWater && y <= waterSurfaceHeight && y > lakeBedHeight) {
                         blocks[x][y][z] = 4; // Water
                         waterCount++;
@@ -108,9 +125,9 @@ public class Chunk {
                         blocks[x][y][z] = 3; // Sand for lake bed
                     } else if (isSandBiome && y <= config.sandHeightThreshold) {
                         blocks[x][y][z] = 3; // Sand
-                    } else if (y < height && !isWater) {
+                    } else if (y < blendedHeight && !isWater) {
                         blocks[x][y][z] = 2; // Stone
-                    } else if (y == height && !isWater) {
+                    } else if (y == blendedHeight && !isWater) {
                         blocks[x][y][z] = 1; // Grass
                     } else {
                         blocks[x][y][z] = 0; // Air
@@ -121,8 +138,12 @@ public class Chunk {
         LOGGER.debug("Chunk at {}: {} water blocks placed, water surface height: {}", pos, waterCount, waterSurfaceHeight);
     }
 
+    private double lerp(double a, double b, double t) {
+        return a + (b - a) * Math.max(0, Math.min(1, t));
+    }
+
     public byte getBlock(int x, int y, int z) {
-        if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE) {
+        if (x < 0 || x >= SIZE || y < 0 || y >= config.maxHeight || z < 0 || z >= SIZE) {
             return 0;
         }
         return blocks[x][y][z];
@@ -141,7 +162,7 @@ public class Chunk {
         int index = 0;
 
         for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
+            for (int y = 0; y < config.maxHeight; y++) {
                 for (int z = 0; z < SIZE; z++) {
                     byte type = blocks[x][y][z];
                     if (type == 0) continue;
