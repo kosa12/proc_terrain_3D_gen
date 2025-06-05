@@ -9,13 +9,13 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 
 public class Mesh {
-    private int vaoID;
-    private int vboID;
-    private int tboID;
-    private int nboID;
-    private int aboID; // Added for alpha VBO
-    private int eboID;
-    private int vertexCount;
+    private final int vaoID;
+    private final int vboID;
+    private final int tboID;
+    private final int nboID;
+    private final int aboID; // Added for alpha VBO
+    private final int eboID;
+    private final int vertexCount;
 
     public Mesh(float[] vertices, float[] texCoords, float[] normals, float[] alphas, int[] indices) {
         vertexCount = indices.length;
