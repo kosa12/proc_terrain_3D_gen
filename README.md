@@ -102,7 +102,18 @@ A Java-based 3D procedural terrain generator built using LWJGL (Lightweight Java
 - **Gradle**: `8.14.1`
 - **OpenGL**: `4.6.0`
 
-## Setup Instructions
+## How to Run
+1. Download `ProcTerrain3DGen.jar` from the [Releases](https://github.com/kosa12/proc_terrain_3D_gen/releases) page. 
+2. Run the JAR:
+    ```bash
+    java -jar ProcTerrain3DGen.jar 
+    ```
+3. Controls:
+    - WASD: Move camera
+    - Enter: Toggle ImGUI cursor
+    - Adjust terrain parameters (scale, octaves, etc.) via ImGUI sliders
+
+## Building from Source
 1. **Clone the Repository**:
    ```bash
     git clone https://github.com/kosa12/proc_terrain_3D_gen
