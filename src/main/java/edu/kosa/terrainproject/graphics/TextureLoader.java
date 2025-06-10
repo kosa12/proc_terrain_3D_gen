@@ -4,6 +4,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -14,7 +15,31 @@ public class TextureLoader {
         IntBuffer width = BufferUtils.createIntBuffer(1);
         IntBuffer height = BufferUtils.createIntBuffer(1);
         IntBuffer channels = BufferUtils.createIntBuffer(1);
-        ByteBuffer data = STBImage.stbi_load(path, width, height, channels, 0);
+
+        // Load texture from classpath
+        InputStream inputStream = TextureLoader.class.getResourceAsStream("/" + path);
+        if (inputStream == null) {
+            throw new RuntimeException("Failed to load texture: Unable to open file " + path);
+        }
+
+        // Read image data into ByteBuffer
+        ByteBuffer data;
+        try {
+            byte[] bytes = inputStream.readAllBytes();
+            ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length);
+            buffer.put(bytes);
+            buffer.flip();
+            data = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load texture: " + e.getMessage());
+        } finally {
+            try {
+                inputStream.close();
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+
         if (data == null) {
             throw new RuntimeException("Failed to load texture: " + STBImage.stbi_failure_reason());
         }

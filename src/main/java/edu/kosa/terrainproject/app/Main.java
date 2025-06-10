@@ -40,7 +40,7 @@ public class Main {
         World world = new World(config);
         Camera camera = new Camera(800f / 600f);
         TextureLoader textureLoader = new TextureLoader();
-        int textureID = textureLoader.loadTexture("src/main/resources/textures/atlas.png");
+        int textureID = textureLoader.loadTexture("textures/atlas.png");
         ShaderProgram shaderProgram = new ShaderProgram();
         Renderer renderer = new Renderer(shaderProgram, textureID);
         InputHandler inputHandler = new InputHandler(windowManager.getWindow(), camera);
